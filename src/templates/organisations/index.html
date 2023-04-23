@@ -1,0 +1,90 @@
+{% extends "_base.html" %} {% block content %}
+<!-- Button to create a child organisation -->
+<!-- List of children organisations -->
+<h1 class="text-center">Organisation {{organisation.name}}</h1>
+{% if organisation.description %}
+<h5 class="text-center">{{organisation.description}}</h5>
+{% endif %}
+{% if current_user.is_admin and current_user.organisation == organisation.id %}
+<div class="col-md-12 text-center mt-4">
+  <a href={{ url_for('organisations.create', id=organisation.id) }}>
+    <button type="button" class="btn btn btn-success me-2">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        class="bi bi-plus-circle"
+        viewBox="0 0 16 16"
+      >
+        <path
+          d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+        />
+        <path
+          d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
+        />
+      </svg>
+      Create
+    </button>
+  </a>
+</div>
+{% endif %}
+{% if ancestors|length > 1 %}
+<div class="col-md-12 text-center mt-4">
+  {% for o in ancestors %}
+  <a href={{ url_for('organisations.home', id=o.id) }} class="link-primary">{{o.name}}</a> {% if o != ancestors[-1] %} > {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+<div class="row">
+  <div class="col-6 mx-auto">
+    <div class="mt-4">
+      <div class="row">
+        <div class="col-12">
+          <h5>Sub-organisations</h5>
+          <div class="list-group">
+            {% for o in children %}
+            <a
+              class="list-group-item list-group-item-action"
+              href={{ url_for('organisations.home', id=o.id) }}
+              aria-controls="list-home"
+            >
+              {{o.name}} <br />
+              {{o.description}}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-12">
+          <h5>{{ organisation.name }} members</h5>
+          <div class="list-group">
+            {% for m in orga_members %}
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col">
+                  {{m.email}}
+                </div>
+                <div class="col-lg-auto">
+                  {% if forms != None %}
+                  <form role="form" method="post" action="">
+                    {{ forms[loop.index0].csrf_token }}
+                    <div class="form-check">
+                      {{ forms[loop.index0].is_admin.label }}
+                      {{ forms[loop.index0].is_admin(class="form-check-input", onchange="submit()") }}
+                      {{ forms[loop.index0].user_id(class="form-control d-none") }}
+                    </div>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
