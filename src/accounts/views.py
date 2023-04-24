@@ -3,6 +3,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from src import bcrypt, db
 from src.accounts.models import User
+from src.organisations.models import Organisation
 
 from .forms import LoginForm, RegisterForm, SetAdminForm
 
@@ -15,6 +16,8 @@ def register():
         flash("You are already registered.", "info")
         return redirect(url_for("core.home"))
     form = RegisterForm(request.form)
+    form.organisation.choices = [(o.id, o.name)
+                                 for o in Organisation.query.order_by('name').all()]
     if form.validate_on_submit():
         user = User(email=form.email.data,
                     password=form.password.data,
